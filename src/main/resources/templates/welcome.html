@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+		xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+	<title>LickPool</title>
+	<script type="text/javascript" src="webjars/jquery/3.3.1-1/jquery.js"></script>
+	<script type='text/javascript' th:inline="javascript">
+       $(function(){
+           $("#header").load("header.html");
+           $("#footer").load("footer.html");
+       });
+       $(function(){
+           $(document).ready(function() {
+               var lickPoolRecordsList = /*[[${lickPoolRecordsList}]]*/ '';
+               lickPoolRecordsList.forEach((lickPoolRecord) => {
+                   $('#recordsTable > tbody:last-child').append("<tr><th scope=\"row\">" + lickPoolRecord.iteration + "</th>" +
+                                                                "<td>" +  lickPoolRecord.betOn + "</td>" +
+                                                                "<td>$" +  lickPoolRecord.bettingAmount + "</td>" +
+                                                                "<td>$" +  lickPoolRecord.totalPool + "</td>" +
+                                                                "<td>" +  lickPoolRecord.startDate + "</td>" +
+                                                                "<td>" +  lickPoolRecord.endDate + "</td>" +
+                                                                "<td>" +  isBetClosed(lickPoolRecord.paidOut)  + "</td>" +
+																					 "<td>" + lickPoolRecord.whoLeft + "</td></tr>");
+               });
+           });
+
+           function isBetClosed (boolean) {
+               return boolean ? 'Yes' : 'No';
+			  }
+
+           $('#submitBet').submit(function(event){
+               event.preventDefault();
+               $.ajax({
+						  url: '/welcome/addBet',
+						  type: "POST",
+						  data: {
+								betOn: $('#lickBankerList').val(),
+						  },
+						  success: function(response, httpStatus) {
+                        var iteration = JSON.parse(response).iteration;
+                        var startDate = JSON.parse(response).startDate;
+                        var bettingAmount = JSON.parse(response).bettingAmount;
+                        var totalPool = JSON.parse(response).totalPool;
+                        $('#recordsTable > tbody:last-child').append("<tr><th scope=\"row\">" + iteration + "</th>" +
+                                                                     "<td>" +  $('#lickBankerList').val() + "</td>" +
+                                                                     "<td>$" +  bettingAmount + "</td>" +
+                                                                     "<td>$" +  totalPool + "</td>" +
+                                                                     "<td>" +  startDate + "</td>" +
+                                                                     "<td> Open </td>" +
+                                                                     "<td>" +  "No" + "</td>" +
+																							"<td></td></tr>");
+						  },
+						  error: function(response) {
+						      if (response.status === 409) {
+                            $("#alreadyBetError").show();
+                        }
+                    }
+					 });
+			  });
+       });
+
+	</script>
+</head>
+	<div id="header"></div>
+	<div class="container-fluid bg-light padding">
+		<div class="jumbotron">
+			<div class="container">
+				<h1 class="display-3">Hello, <th:block th:text="${userName}"/>!</h1>
+				<p>LickBank is proud to offer the LickPool service. Here you can amount on who will leave next and when the office will
+				finally close. Each betting period will last for two weeks. You can pick one person per period (excluding yourself). When a LickBanker leaves the pool will be paid out.</p>
+				<p><a class="btn btn-primary btn-lg" role="button" data-toggle="modal" data-target="#learnMore">Learn More »</a></p>
+			</div>
+		</div>
+	</div>
+	<div class="container">
+		<div class="row bg-dark justify-content-center">
+			<div class="col-md-4">
+				<h4 class="text-center text-white">Iteration: <th:block th:text="${currentIteration}"</h4>
+			</div>
+			<div class="col-md-4">
+				<h4 class="text-center text-white">Betting Amount: $<th:block th:text="${bettingAmount}"</h4>
+			</div>
+		</div>
+		<div class="mt-5 col-md-12"></div>
+		<div class="row" style="margin-bottom: 20%">
+			<div class="col-md-6">
+				<h4>Your Bets</h4>
+				<table id="recordsTable" class="table table-striped" style="text-align: center">
+					<thead>
+					<tr>
+						<th scope="col">Iteration</th>
+						<th scope="col">LickBanker</th>
+						<th scope="col">Bet</th>
+						<th scope="col">Total Pool</th>
+						<th scope="col">Start Date</th>
+						<th scope="col">End Date</th>
+						<th scope="col">Pay Out?</th>
+						<th scope="col">Who left?</th>
+					</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+			<div class="col-md-2">
+			</div>
+			<div class="col-md-4">
+				<h4>Who Will Leave Next??</h4>
+				<form id="submitBet" method="post">
+					<div class="form-group">
+						<select id="lickBankerList" class="form-control form-control-sm">
+							<script language="javascript" type="text/javascript" th:inline="javascript">
+								 var lickBankers = /*[[${lickBankers}]]*/ 'default';
+								 for (var i = 0; i < lickBankers.length; i++) {
+									  document.write("<option>" + lickBankers[i] + "</option>");
+								 }
+							</script>
+						</select>
+					</div>
+					<div><input  type="submit" class="btn btn-success" value="Place Your Bet"/></div>
+				</form>
+				<div class="mt-2 col-md-12"></div>
+				<div id="alreadyBetError" class="alert alert-danger" role="alert" style="display:none">
+					You've already bet on the current pool. Each pool lasts two weeks or until someone leaves.
+				</div>
+			</div>
+		</div>
+		<div id="learnMore" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Learn More</h4>
+					</div>
+					<div class="modal-body">
+						<p>You've done learned</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="footer"></div>
+</html>

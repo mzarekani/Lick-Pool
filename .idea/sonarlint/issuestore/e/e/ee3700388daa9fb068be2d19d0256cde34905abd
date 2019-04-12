@@ -1,0 +1,5 @@
+
+ksquid:S4488"HReplace "@RequestMapping(method = RequestMethod.GET)" with "@GetMapping"(ÓĞ¹Äÿÿÿÿÿ8€¾é ƒ-
+lsquid:S1192"IDefine a constant instead of duplicating this literal "register" 4 times.(ã‹¥œúÿÿÿÿ8åş²¥ƒ-
+hsquid:S4488"JReplace "@RequestMapping(method = RequestMethod.POST)" with "@PostMapping"(ÚŞ•8€¾é ƒ-
+isquid:CommentedOutCodeLine)"<This block of commented-out lines of code should be removed.(«¿è†8à˜¢ƒ-

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+		xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<style>
+	.container {
+		padding-top: 50px; /* Whatever the height of your navbar is; the
+                             default is 50px */
+	}
+</style>
+<head>
+	<meta charset="UTF-8">
+	<title>LickPool</title>
+	<script type="text/javascript" src="webjars/jquery/3.3.1-1/jquery.js"></script>
+	<script type='text/javascript' th:inline='javascript'>
+       $(function() {
+           $(document).ready(function () {
+               var lickPoolRecordsList = /*[[${lickPoolRecordsList}]]*/ '';
+               lickPoolRecordsList.forEach((lickPoolRecord) => {
+                   $('#recordsTable > tbody:last-child').append("<tr><th scope=\"row\">" + lickPoolRecord.iteration + "</th>" +
+																					 "<td>" + lickPoolRecord.id + "</td>" +
+																					 "<td>" + lickPoolRecord.betOn + "</td>" +
+																					 "<td>$" + lickPoolRecord.bettingAmount + "</td>" +
+																					 "<td>$" + lickPoolRecord.totalPool + "</td>" +
+																					 "<td>" + lickPoolRecord.startDate + "</td>" +
+																					 "<td>" + lickPoolRecord.endDate + "</td>" +
+																					 "<td>" + isBetClosed(lickPoolRecord.paidOut) + "</td>" +
+																					 "<td>" + lickPoolRecord.whoLeft + "</td></tr>");
+               });
+           });
+       });
+
+       $(function(){
+           $("#header").load("header.html");
+           $("#footer").load("footer.html");
+       });
+
+       function isBetClosed (boolean) {
+           return boolean ? 'Yes' : 'No';
+       }
+       function showDidSomebodyLeave() {
+           $("#didSomebodyLeave").show();
+		 }
+       function showWhoLeft() {
+           $("#whoLeft").show();
+           $("#bettingAmount").show();
+
+           showSubmit();window.URL.createObjectURL
+       }
+       function nobodyLeft() {
+           $("#whoLeft").hide();
+           $("#bettingAmount").show();
+
+           showSubmit();
+       }
+       function showSubmit() {
+           $("#submit").show();
+       }
+ 	</script>
+</head>
+
+<div id="header"></div>
+<body>
+	<div class="container">
+		<div class="row" style="margin-bottom: 20%">
+			<div class="col-6 form-group">
+				<form th:action="@{/admin/newPoolPeriod}" method="post">
+					<div class="row">
+						<button type="button" class="btn btn-primary" onclick="showDidSomebodyLeave()">New Pool Period</button>
+					</div>
+					<div class="mt-2 col-md-12"></div>
+					<div class="row" id="didSomebodyLeave" style="display:none">
+						<div class="col-3">
+						<p>Did Somebody Leave?</p>
+						</div>
+						<div class="col-sm-1">
+							<button type="button" class="btn btn-primary" onclick="showWhoLeft()">Yes</button>
+						</div>
+						<div class="col-sm-1"></div>
+						<div class="col-sm-1">
+							<button type="button" class="btn btn-primary" onClick="nobodyLeft()">No</button>
+						</div>
+					</div>
+					<div class="mt-2 col-md-12"></div>
+					<div class="row" id="whoLeft" style="display:none">
+						<div class="col-3">
+							<p>Who Left?</p>
+						</div>
+						<div class="col-md-2">
+						<select name="luckyBastard" class="form-control form-control-sm">
+							document.write("<option></option>");
+							<script language="javascript" type="text/javascript" th:inline="javascript">
+								 var lickBankers = /*[[${lickBankers}]]*/ 'default';
+								 for (var i = 0; i < lickBankers.length; i++) {
+									  document.write("<option>" + lickBankers[i] + "</option>");
+								 }
+							</script>
+						</select>
+						</div>
+					</div>
+					<div class="mt-2 col-md-12"></div>
+					<div class="form-group row" id="bettingAmount" style="display:none">
+						<label class="col-3 col-form-label">Select Betting Amount?</label>
+						<div class="col-2">
+							<input name="bettingAmount" class="form-control" type="number" value="10">
+						</div>
+					</div>
+					<div class="row" id="submit" style="display:none">
+						<div class="col-md-2"></div>
+						<div class="col-md-2"><input type="submit" class="btn btn-primary" value="Submit"/></div>
+					</div>
+				</form>
+			</div>
+			<div class="col-12">
+				<h4>All Bets</h4>
+				<table id="recordsTable" class="table table-striped" style="text-align: center">
+					<thead>
+					<tr>
+						<th scope="col">Iteration</th>
+						<th scope="col">LickBankee</th>
+						<th scope="col">LickBanker</th>
+						<th scope="col">Bet</th>
+						<th scope="col">Total Pool</th>
+						<th scope="col">Start Date</th>
+						<th scope="col">End Date</th>
+						<th scope="col">Pay Out?</th>
+						<th scope="col">Who Left?</th>
+					</tr>
+					</thead>
+					<tbody>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</body>
+<div id="footer"></div>
+</html>
